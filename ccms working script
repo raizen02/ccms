@@ -1,0 +1,49 @@
+select * from loan_applications
+   Update loan_applications SET status = 'FILED',
+          remarks = @remarks
+         WHERE ps_id = @ps_id 
+            AND member_id = @member_id 
+            AND status = 'APRROVED'
+  		--AND loan_id = ''
+      
+
+select * from loan_accounts
+  DELETE FROM loan_accounts
+        -- WHERE loan_id = ''
+
+
+  --Loan Transaction rollback
+
+  DELETE FROM loan_accounts 
+     --  where loan_id =''
+  DELETE FROM cashbook_debit_trans
+     --  where ref_id = '2026'
+  DELETE FROM loan_applications 
+     --  where loan_id = '2026'
+  DELETE FROM sbu_trans 
+     -- where trans_id = '2026'
+  DELETE FROM sbu_monthly_summary 
+      	 WHERE period_date = dbo.ufn_GetFirstDayOfMonth(getdate())
+
+  UPDATE member_share_info SET available_share_amount = shares_amount 
+     -- WHERE member_id IN ('PSxxx','RMxxx')
+  UPDATE shares_pool_summary SET total_cash_on_hand =  (SELECT SUM(available_share_amount) FROM member_share_info ),
+                                 total_rm_shares  = (SELECT SUM(available_share_amount) FROM member_share_info 
+								                     WHERE membership_type = 'RM'),        
+								 total_ps_shares = 	(SELECT SUM(available_share_amount) FROM member_share_info 
+								                     WHERE membership_type = 'PS')  				           
+	 WHERE period_date = dbo.ufn_GetFirstDayOfMonth(getdate())
+
+ DELETE FROM user_notification
+ DELETE FROM message_board
+
+  select * from loan_accounts
+  select * from loan_applications 
+  select * from shares_pool_summary_history
+  select * from shares_pool_summary
+  select * from sbu_trans
+  select * from member_share_info
+  select * from sbu_monthly_summary
+  select * from user_notification
+  select * from message_board
+  select * from cashbook_debit_trans
